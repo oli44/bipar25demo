@@ -87,17 +87,19 @@
 
   <script defer>
     AFRAME.registerComponent('play-on-click', {
+      
       init: function () {
         var videoEl = this.el.getAttribute('material').src;
         this.onClick = this.onClick.bind(this);
 
         this.el.addEventListener('targetFound', event => {
           videoEl.play()
+          console.log("target found playing")
         });
         this.el.addEventListener('targetLost', event => {
           videoEl.pause()
           videoEl.currentTime = 0;
-          //console.log("target found");
+          console.log("target lost pausing");
         });
       },
       play: function () {
@@ -114,36 +116,23 @@
     });
   </script>
   
-
-
-
-
-
 </head>
 
 <body style="margin : 0px; overflow: hidden;">
 
-
   <a-scene mindar-image="imageTargetSrc:assets/test_target.mind;" color-space="sRGB"
     renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false">
-    <!--assets/artwork2.mp4#t=0.1-->
-    <!--https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4 -->
+ 
     <a-assets>
-
-      <video src="./assets/Test.mp4#t=0.1" muted="true" loop="true" controls="false" playsinline webkit-playsinline
+      <video src="./assets/artwork3.mp4" preload="metadata" autoplay loop="true" controls="false" playsinline webkit-playsinline
         type='video/mp4' id="vid"></video>
     </a-assets>
-
-
 
     <a-entity mindar-image-target="targetIndex: 0" play-on-click
       material="shader: chromakey; src: #vid; chroma: false; color: 0. 0. 1."
       geometry="primitive: plane; width:  1; height:  1.6" position="0  0  0" rotation="270  0  0" side="double">
     </a-entity>
-
-
-
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
