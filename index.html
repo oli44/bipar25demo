@@ -91,7 +91,7 @@
       init: function () {
         var videoEl = this.el.getAttribute('material').src;
         this.onClick = this.onClick.bind(this);
-
+        /*
         this.el.addEventListener('targetFound', event => {
           var videoEl = this.el.getAttribute('material').src;
           videoEl.play()
@@ -102,7 +102,7 @@
           videoEl.pause()
           videoEl.currentTime = 0;
           console.log("target lost pausing");
-        });
+        });*/
       },
       play: function () {
         window.addEventListener('click', this.onClick);
@@ -127,7 +127,7 @@
     device-orientation-permission-ui="enabled: false">
  
     <a-assets>
-      <video src="./assets/artwork3.mp4" preload="metadata" autoplay loop="true" controls="false" playsinline webkit-playsinline
+      <video src="./assets/artwork3.mp4" preload="metadata"  loop="true" controls="false" playsinline webkit-playsinline
         type='video/mp4' id="vid"></video>
     </a-assets>
 
