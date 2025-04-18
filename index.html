@@ -4,10 +4,6 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <!-- XR Extras - provides utilities like load screen, error handling, and gesture control helpers.
-         See https://github.com/8thwall/web/tree/master/xrextras/ 
-         <script src="//cdn.8thwall.com/web/xrextras/xrextras.js"></script>-->
-  
   <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
@@ -22,6 +18,8 @@
       },
 
       init: function (data) {
+        var videoEl = this.el.getAttribute('material').src;
+        //videoEl.play();
 
         var videoTexture = new THREE.VideoTexture(data.src)
         videoTexture.minFilter = THREE.LinearFilter
@@ -87,30 +85,20 @@
   </script>
 
 
-<script defer>
-  AFRAME.registerComponent('play-on-click', {
-  init: function () {
-    this.onClick = this.onClick.bind(this);
-  },
-  play: function () {
-    window.addEventListener('click', this.onClick);
-  },
-  pause: function () {
-    window.removeEventListener('click', this.onClick);
-  },
-  onClick: function (evt) {
-    var videoEl = this.el.getAttribute('material').src;
-    if (!videoEl) { return; }
-    this.el.object3D.visible = true;
-    videoEl.play();
-  }
-});
-</script>
   <script defer>
-    /*
     AFRAME.registerComponent('play-on-click', {
       init: function () {
+        var videoEl = this.el.getAttribute('material').src;
         this.onClick = this.onClick.bind(this);
+
+        this.el.addEventListener('targetFound', event => {
+          videoEl.play()
+        });
+        this.el.addEventListener('targetLost', event => {
+          videoEl.pause()
+          videoEl.currentTime = 0;
+          //console.log("target found");
+        });
       },
       play: function () {
         window.addEventListener('click', this.onClick);
@@ -119,27 +107,13 @@
         window.removeEventListener('click', this.onClick);
       },
       onClick: function (evt) {
-        let videoEl = document.querySelector("#vid")
-
-        console.log(videoEl)
+        if (!videoEl) { return; }
+        this.el.object3D.visible = true;
         videoEl.play();
-        // if (!videoEl) { return; }
-        // this.el.object3D.visible = true;
-        //videoEl.play();
-        if (videoEl !== undefined) {
-          videoEl.catch(error => {
-            console.log("no no")
-            // Auto-play was prevented
-            // Show a UI element to let the user manually start playback
-          }).then(() => {
-            // Auto-play started
-            console.log("then ...")
-          });
-        }
-
       }
-    });*/
+    });
   </script>
+  
 
 
 
@@ -157,23 +131,17 @@
     <!--https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4 -->
     <a-assets>
 
-      <video src="./assets/artwork3.mp4#t=0.1"  muted="true" loop="true" controls="false"
-        playsinline webkit-playsinline type='video/mp4'  id="vid" ></video>
-
-        <video src="./assets/mask.mp4#t=0.1"  preload="metadata" muted="true" loop="true" controls="false"
-        playsinline webkit-playsinline type='video/mp4'  id="vid2" ></video>
-
-        <video src="./assets/Test.mp4#t=0.1"  preload="metadata" muted="true" loop="true" controls="false"
-        playsinline webkit-playsinline type='video/mp4'  id="vid3" ></video>
+      <video src="./assets/Test.mp4#t=0.1" muted="true" loop="true" controls="false" playsinline webkit-playsinline
+        type='video/mp4' id="vid"></video>
     </a-assets>
 
-   
-    
+
+
     <a-entity mindar-image-target="targetIndex: 0" play-on-click
       material="shader: chromakey; src: #vid; chroma: false; color: 0. 0. 1."
       geometry="primitive: plane; width:  1; height:  1.6" position="0  0  0" rotation="270  0  0" side="double">
     </a-entity>
-    
+
 
 
 
