@@ -18,9 +18,7 @@
       },
 
       init: function (data) {
-        var videoEl = this.el.getAttribute('material').src;
-        //videoEl.play();
-
+   
         var videoTexture = new THREE.VideoTexture(data.src)
         videoTexture.minFilter = THREE.LinearFilter
         this.material = new THREE.ShaderMaterial({
@@ -127,7 +125,7 @@
     device-orientation-permission-ui="enabled: false">
  
     <a-assets>
-      <video src="./assets/artwork3.mp4" preload="metadata"  loop="true" controls="false" playsinline webkit-playsinline
+      <video src="./assets/artwork3.mp4" muted="true" loop="true" controls="false" playsinline webkit-playsinline
         type='video/mp4' id="vid"></video>
     </a-assets>
 
