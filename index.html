@@ -2,24 +2,26 @@
 <html>
 
 <head>
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <!-- XR Extras - provides utilities like load screen, error handling, and gesture control helpers.
+         See https://github.com/8thwall/web/tree/master/xrextras/ 
+         <script src="//cdn.8thwall.com/web/xrextras/xrextras.js"></script>-->
+  
+  <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
   <script defer>
     // https://github.com/nikolaiwarner/aframe-chromakey-material
     AFRAME.registerShader('chromakey', {
       schema: {
-        src: {type: 'map'},
-        color: {default: {x: 0.0, y: 1.0, z: 0.0}, type: 'vec3', is: 'uniform'},
-        chroma: {type: 'bool', is: 'uniform'},
-        transparent: {default: true, is: 'uniform'}
+        src: { type: 'map' },
+        color: { default: { x: 0.0, y: 1.0, z: 0.0 }, type: 'vec3', is: 'uniform' },
+        chroma: { type: 'bool', is: 'uniform' },
+        transparent: { default: true, is: 'uniform' }
       },
 
       init: function (data) {
-        const videoEl = data.src;
-        videoEl.muted = true
-        //document.addEventListener('click', () => {
-        //  videoEl.play();
-        //});
 
         var videoTexture = new THREE.VideoTexture(data.src)
         videoTexture.minFilter = THREE.LinearFilter
@@ -84,63 +86,95 @@
 
   </script>
 
-<script defer>
-  AFRAME.registerComponent("playhandler", {
-    init: function () {
-      this.trackedElements = document.querySelectorAll(
-        "playhandler"
-      );
-      // console.log(this.trackedElements);
-    },
-    tick: function () {
-      this.trackedElements.forEach((marker) => {
-        const vid = document.querySelector(
-          marker.attributes.vidReference.value
-        );
-        const sound = document.querySelector(
-          marker.attributes.audioReference.value
-        );
-        if (marker.object3D.visible) {
-          if (vid && vid.paused) {
-            vid.play();
-          }
-          if (sound && sound.paused) {
-            sound.play();
-          }
-        } else {
-          if (vid && !vid.paused) {
-            vid.pause();
-            vid.currentTime = 0;
-          }
-          if (sound && !sound.paused) {
-            sound.pause();
-            sound.currentTime = 0;
-          }
-        }
-      });
-    },
-  });
 
+<script defer>
+  AFRAME.registerComponent('play-on-click', {
+  init: function () {
+    this.onClick = this.onClick.bind(this);
+  },
+  play: function () {
+    window.addEventListener('click', this.onClick);
+  },
+  pause: function () {
+    window.removeEventListener('click', this.onClick);
+  },
+  onClick: function (evt) {
+    var videoEl = this.el.getAttribute('material').src;
+    if (!videoEl) { return; }
+    this.el.object3D.visible = true;
+    videoEl.play();
+  }
+});
 </script>
+  <script defer>
+    /*
+    AFRAME.registerComponent('play-on-click', {
+      init: function () {
+        this.onClick = this.onClick.bind(this);
+      },
+      play: function () {
+        window.addEventListener('click', this.onClick);
+      },
+      pause: function () {
+        window.removeEventListener('click', this.onClick);
+      },
+      onClick: function (evt) {
+        let videoEl = document.querySelector("#vid")
+
+        console.log(videoEl)
+        videoEl.play();
+        // if (!videoEl) { return; }
+        // this.el.object3D.visible = true;
+        //videoEl.play();
+        if (videoEl !== undefined) {
+          videoEl.catch(error => {
+            console.log("no no")
+            // Auto-play was prevented
+            // Show a UI element to let the user manually start playback
+          }).then(() => {
+            // Auto-play started
+            console.log("then ...")
+          });
+        }
+
+      }
+    });*/
+  </script>
+
+
+
+
+
 </head>
 
 <body style="margin : 0px; overflow: hidden;">
 
-  <a-scene mindar-image="imageTargetSrc:assets/test_target.mind;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
 
+  <a-scene mindar-image="imageTargetSrc:assets/test_target.mind;" color-space="sRGB"
+    renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false">
+    <!--assets/artwork2.mp4#t=0.1-->
+    <!--https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4 -->
     <a-assets>
-      <video id="vid" src="assets/Test2.0.mp4" autoplay="true" loop="true" preload="auto" controls="true"
-        muted="true" playsinline="" webkit-playsinline=""></video>
+
+      <video src="./assets/artwork3.mp4#t=0.1"  muted="true" loop="true" controls="false"
+        playsinline webkit-playsinline type='video/mp4'  id="vid" ></video>
+
+        <video src="./assets/mask.mp4#t=0.1"  preload="metadata" muted="true" loop="true" controls="false"
+        playsinline webkit-playsinline type='video/mp4'  id="vid2" ></video>
+
+        <video src="./assets/Test.mp4#t=0.1"  preload="metadata" muted="true" loop="true" controls="false"
+        playsinline webkit-playsinline type='video/mp4'  id="vid3" ></video>
     </a-assets>
 
-
-      <a-entity 
-      mindar-image-target="targetIndex: 0"
-      playhandler vidReference="#vid"
-      audioReference="null"
+   
+    
+    <a-entity mindar-image-target="targetIndex: 0" play-on-click
       material="shader: chromakey; src: #vid; chroma: false; color: 0. 0. 1."
       geometry="primitive: plane; width:  1; height:  1.6" position="0  0  0" rotation="270  0  0" side="double">
-      </a-entity>
+    </a-entity>
+    
+
 
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>

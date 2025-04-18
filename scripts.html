@@ -1,0 +1,128 @@
+<script defer>
+    // https://github.com/nikolaiwarner/aframe-chromakey-material
+    AFRAME.registerShader('chromakey', {
+      schema: {
+        src: { type: 'map' },
+        color: { default: { x: 0.0, y: 1.0, z: 0.0 }, type: 'vec3', is: 'uniform' },
+        chroma: { type: 'bool', is: 'uniform' },
+        transparent: { default: true, is: 'uniform' }
+      },
+
+      init: function (data) {
+
+        var videoTexture = new THREE.VideoTexture(data.src)
+        videoTexture.minFilter = THREE.LinearFilter
+        this.material = new THREE.ShaderMaterial({
+          uniforms: {
+            chroma: {
+              type: 'b',
+              value: data.chroma
+            },
+            color: {
+              type: 'c',
+              value: data.color
+            },
+            myTexture: {
+              type: 't',
+              value: videoTexture
+            }
+          },
+          vertexShader:
+            `
+            varying vec2 vUv;
+            
+            void main(void)
+            {
+              vUv = uv;
+              vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+              gl_Position = projectionMatrix * mvPosition;
+            }
+          `
+          ,
+          fragmentShader:
+            `
+              uniform sampler2D myTexture;
+              uniform vec3 color;
+              uniform bool chroma;
+              varying vec2 vUv;
+              
+              void main(void)
+              {
+                vec3 tColor = texture2D( myTexture, vUv ).rgb;
+                float a;
+                if(chroma == true){
+                   a = (length(tColor - color) - 0.5) * 7.0;
+                }
+                else {
+                  a = 1.0;
+                }
+                
+                gl_FragColor = vec4(tColor, a);
+              }
+            `
+        })
+      },
+
+      update: function (data) {
+        this.material.color = data.color
+        this.material.src = data.src
+        this.material.transparent = data.transparent
+      },
+
+    })
+
+  </script>
+
+
+
+
+<script defer>
+    // Note: The logic below might be redundant if the video is already handled by the shader.
+    // Consider if this component's play logic is still needed or if it targets a different video.
+    AFRAME.registerComponent('mytarget', {
+      init: function () {
+        const videoSelector = this.el.getAttribute("src"); // Assuming this attribute holds a selector like '#vid'
+        if (videoSelector) {
+          const videoEl = document.querySelector(videoSelector);
+          if (videoEl) {
+            // It's generally better to handle play logic in one place (e.g., the shader init).
+            // If you need separate logic here, you might need a separate play button or coordination.
+            // For now, logging intent but not duplicating the play button logic.
+            console.log("Mytarget init: Video element found, play handled by shader or elsewhere.");
+
+            /* // Example of potential redundant/conflicting play logic:
+            const videoElProm = videoEl.play();
+            if(videoElProm !== undefined) {
+              videoElProm.catch(error => {
+                console.log('Mytarget: no no autoplay')
+                // Potentially show another UI element or coordinate with the main one
+              }).then(() => {
+                console.log('Mytarget: Autoplay started');
+              });
+            }
+            */
+          } else {
+            console.error("Mytarget init: Could not find video element with selector:", videoSelector);
+          }
+        } else {
+          console.warn("Mytarget init: No src attribute found on the element.");
+        }
+
+        /*
+        this.el.addEventListener('targetFound', event => {
+           console.log("target found");
+           document.addEventListener('click ', event => {
+           //  videoEl.play()
+           })
+           
+         
+            
+         });
+         this.el.addEventListener('targetLost', event => {
+           console.log("target found");
+         });
+         //this.el.emit('targetFound');*/
+      }
+    });
+
+  </script>
