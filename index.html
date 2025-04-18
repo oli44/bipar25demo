@@ -93,10 +93,12 @@
         this.onClick = this.onClick.bind(this);
 
         this.el.addEventListener('targetFound', event => {
+          var videoEl = this.el.getAttribute('material').src;
           videoEl.play()
           console.log("target found playing")
         });
         this.el.addEventListener('targetLost', event => {
+          var videoEl = this.el.getAttribute('material').src;
           videoEl.pause()
           videoEl.currentTime = 0;
           console.log("target lost pausing");
