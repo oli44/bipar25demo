@@ -18,8 +18,7 @@
         transparent: { default: true, is: 'uniform' },
         // New properties for displacement
         displacement: { type: 'bool', default: false, is: 'uniform' },
-        damplitude: { type: 'float', default: 0.0, is: 'uniform' },
-        noiseTexture: { type: 'map', is: 'uniform' } // Uniform for the noise texture
+        damplitude: { type: 'float', default: 0.0, is: 'uniform' }
       },
 
       init: function (data) {
@@ -49,10 +48,6 @@
               type: 'f',
               value: data.damplitude
             },
-            noiseTexture: {
-              type: 't',
-              value: data.noiseTexture
-            },
              // A-Frame provides time uniform automatically
           },
           vertexShader:
@@ -61,20 +56,20 @@
             precision mediump float;
             #endif
 
-            // A-Frame attributes
-            attribute vec3 position;
-            attribute vec2 uv;
-            attribute vec3 normal; // Use the normal attribute
-
-            // A-Frame uniforms
-            uniform mat4 modelViewMatrix;
-            uniform mat4 projectionMatrix;
+            // A-Frame provides these built-in attributes and uniforms automatically
+            // attribute vec3 position;
+            // attribute vec2 uv;
+            // attribute vec3 normal;
+            // uniform mat4 modelViewMatrix;
+            // uniform mat4 projectionMatrix;
             uniform float time; // A-Frame time uniform (milliseconds)
+
+            // Existing uniform for video texture
+            uniform sampler2D myTexture;
 
             // New uniforms
             uniform bool displacement;
             uniform float damplitude;
-            uniform sampler2D noiseTexture; // Uniform for the noise texture
 
             // Varying to pass texture coordinates to the fragment shader
             varying vec2 vUv;
@@ -85,18 +80,20 @@
               vec3 displacedPosition = position; // Start with original position
 
               if (displacement) {
-                // Sample the noise texture using UV coordinates
-                vec4 noise = texture2D(noiseTexture, fract(uv));
+                // Sample the video texture using UV coordinates for displacement
+                // Use a different UV for sampling the video texture if needed, 
+                // but for now, using the geometry's UV for displacement texture lookup
+                vec4 noise = texture2D(myTexture, fract(uv));
 
                 // Calculate a single float noise value from the RGB channels, centered around 0
                 float noiseValue = dot(noise.rgb, vec3(0.333)) - 0.5; // Value between -0.5 and 0.5
 
                 // Calculate displacement strength based on time and amplitude uniform
                 // Scale time to seconds
-                float displacementStrength = (time * 0.001) * damplitude;
+                float displacementStrength =  damplitude;
 
-                // Displace the vertex position along its normal vector
-                displacedPosition += normal * noiseValue * displacementStrength;
+                // Apply displacement only along the Y axis as per the user's provided shader logic
+                displacedPosition.z += noiseValue * displacementStrength;
               }
 
               // Calculate final position in clip space using the displaced position
@@ -145,11 +142,7 @@
         // Update new uniforms
         this.material.uniforms.displacement.value = data.displacement;
         this.material.uniforms.damplitude.value = data.damplitude;
-        // Check if the noise texture has changed
-        if (data.noiseTexture !== this.lastNoiseTexture) {
-          this.material.uniforms.noiseTexture.value = data.noiseTexture;
-          this.lastNoiseTexture = data.noiseTexture;
-        }
+        // No need to update noiseTexture uniform as we are using myTexture
       },
 
     })
@@ -212,13 +205,12 @@
     <a-assets>
       <video src="./assets/Test.mp4#t=0.1" muted="true" loop="true" controls="false" playsinline webkit-playsinline
         type='video/mp4' id="vid"></video>
-      <!-- Add a placeholder for the noise texture. Replace 'assets/noise.png' with your noise image path -->
-      <img id="noiseImg" src="assets/noise.png" crossorigin="anonymous">
+      <!-- Removed the noise texture image -->
     </a-assets>
 
     <a-entity mindar-image-target="targetIndex: 0" play-on-click
-      material="shader: chromakey; src: #vid; chroma: false; color: 0. 0. 1.; displacement: true; damplitude: 0.5; noiseTexture: #noiseImg"
-      geometry="primitive: plane; width:  1; height:  1.6; segments-width: 30; segments-height: 30"
+      material="shader: chromakey; src: #vid; chroma: false; color: 0. 0. 1.; displacement: true; damplitude: -1.5"
+      geometry="primitive: plane; width:  1; height:  1.6; segments-width: 100; segments-height: 100"
       position="0  0  0" rotation="270  0  0" side="double">
     </a-entity>
 
