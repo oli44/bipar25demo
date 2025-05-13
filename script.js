@@ -266,3 +266,37 @@ AFRAME.registerComponent('play-sound-and-displace', {
         }
     }
 });
+
+AFRAME.registerComponent('play-on-click', {
+    init: function () {
+      this.onClick = this.onClick.bind(this);
+
+      this.el.addEventListener('targetFound', event => {
+        console.log("target found");
+        var videoEl = this.el.getAttribute('material').src;
+        if (!videoEl) { return; }
+        this.el.object3D.visible = true;
+        videoEl.play();
+
+      });
+      this.el.addEventListener('targetLost', event => {
+        console.log("target found");
+        var videoEl = this.el.getAttribute('material').src;
+        if (!videoEl) { return; }
+        this.el.object3D.visible = false;
+        videoEl.pause();
+      });
+    },
+    play: function () {
+      window.addEventListener('click', this.onClick);
+    },
+    pause: function () {
+      window.removeEventListener('click', this.onClick);
+    },
+    onClick: function (evt) {
+      var videoEl = this.el.getAttribute('material').src;
+      if (!videoEl) { return; }
+      this.el.object3D.visible = true;
+      videoEl.play();
+    }
+  });
