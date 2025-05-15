@@ -17,14 +17,14 @@
     device-orientation-permission-ui="enabled: false">
 
     <a-assets>
-      <video src="./assets/yellowstrings.mp4#t=0.1" muted="true" loop="true" controls="false" playsinline webkit-playsinline
+      <video src="./assets/scale.mp4" muted="true" loop="true" controls="false" playsinline webkit-playsinline
         type='video/mp4' id="vid"></video>
       <!-- Audio asset -->
       <audio id="audio" src="./assets/chopin.mp3" preload="auto" crossorigin="anonymous"></audio>
     </a-assets>
 
     <a-entity mindar-image-target="targetIndex: 0" play-sound-and-displace play-on-click
-      material="shader: chromakey; src: #vid; chroma: true; color: 0. 0.8 1.; displacement: true;"
+      material="shader: chromakey; src: #vid; chroma: false; color: 0. 0.8 1.; displacement: true;"
       geometry="primitive: plane; width:  1; height:  1.6; segments-width: 50; segments-height: 100"
       position="0  0  0" rotation="270  0  0" side="double">
     </a-entity>
